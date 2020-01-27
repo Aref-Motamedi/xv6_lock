@@ -16,6 +16,11 @@ struct {
 
 static struct proc *initproc;
 
+struct ticketlock mutex1;
+struct ticketlock mutex2;
+int rwcounter;
+int readersCount;
+
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
@@ -559,12 +564,55 @@ ticketlockTest(void)
 void
 rwinit(void)
 {
+  initlockTicket(&mutex1, "&mutex1");
+  initlockTicket(&mutex2, "&mutex2");
 
+  rwcounter =0;
+  readersCount =0;
 }
 
 int
 rwtest(int rw)
 {
-  
+
+  if (rw == 0){
+    int readdata=100;
+
+    acquireTicket(&mutex2);
+    readersCount ++;
+    if (readersCount == 1){
+      acquireTicket(&mutex1);
+    }
+    releaseTicket(&mutex2);
+
+    //REAAAD
+    readdata = rwcounter;
+    //REAAAD
+
+    acquireTicket(&mutex2);
+    readersCount --;  
+    if (readersCount == 0){
+      releaseTicket(&mutex1);
+    }
+    releaseTicket(&mutex2);
+
+    return readdata;
+
+  } else if (rw == 1){
+
+    acquireTicket(&mutex1);
+
+    //WRITE
+    rwcounter ++;
+    //WRITE
+
+    releaseTicket(&mutex1);
+
+    return 1;
+
+  } else {
+    cprintf("wrong format!!!");
+    return -1;
+  }
   return 1;
 }

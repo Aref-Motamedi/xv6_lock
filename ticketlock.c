@@ -17,6 +17,7 @@ initlockTicket(struct ticketlock *lk, char *name)
   lk->name = name;
   lk->proc = 0; 
   lk->ticket = 0;
+  lk->turn = 0;
   lk->cpu = 0;
 }
 
@@ -30,11 +31,11 @@ acquireTicket(struct ticketlock *lk)
     uint currentTicket;
     pushcli(); // disable interrupts to avoid deadlock.
 
-    if(holdingTicket(lk))
-        panic("acquire");
+    // if(holdingTicket(lk))
+        // panic("acquire");
 
     currentTicket = fetch_and_add(&lk->ticket , 1);
-    cprintf("current ticket: %d\n",currentTicket);
+    // cprintf("current ticket: %d\n",currentTicket);
 
   // The xchg is atomic.
   while(lk->turn != currentTicket);
@@ -61,8 +62,8 @@ releaseTicket(struct ticketlock *lk)
   lk->pcs[0] = 0;
   lk->proc = 0;
   lk->cpu = 0;
-  lk->turn++;
-
+  // lk->turn++;
+  fetch_and_add(&lk->turn , 1);
   // Tell the C compiler and the processor to not move loads or stores
   // past this point, to ensure that all the stores in the critical
   // section are visible to other cores before the lock is released.
