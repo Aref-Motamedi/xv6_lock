@@ -1,4 +1,4 @@
-// Mutual exclusion lock.
+// Doodool lock
 struct ticketlock {
   uint ticket;
   uint turn;

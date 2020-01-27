@@ -100,6 +100,6 @@ sys_ticketlockInit(void)
 int
 sys_ticketlockTest(void)
 {
-  ticketlockTest();
-  return 0;
+  return ticketlockTest();
+  
 }

@@ -145,7 +145,7 @@ lcr3(uint val)
 }
 
 static inline int
-fetch_and_add (int *var, int value)
+fetch_and_add (uint *var, int value)
 {
   asm volatile("lock; xaddl %0, %1"
     :"+r" (value), "+m" (*var)

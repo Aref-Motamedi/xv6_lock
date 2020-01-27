@@ -6,9 +6,11 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "ticketlock.h"
 
 struct {
   struct spinlock lock;
+  struct ticketlock ticketlock;
   struct proc proc[NPROC];
 } ptable;
 
@@ -536,11 +538,20 @@ procdump(void)
 void
 ticketlockInit(void)
 {
-
+  initlockTicket(&ptable.ticketlock, "pTableTicketLock");
+  // cprintf("1");
 }
 
-void
+int
 ticketlockTest(void)
 {
-  
+  acquireTicket(&ptable.ticketlock);
+  int cc =0;
+  for(cc=0;cc<100;cc++){
+    cprintf("%d : %d\n",myproc()->pid,cc);
+  }
+  releaseTicket(&ptable.ticketlock);
+  // cprintf("2");
+  cc = (&ptable.ticketlock)->ticket;
+  return cc;
 }

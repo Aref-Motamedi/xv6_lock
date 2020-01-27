@@ -22,6 +22,7 @@ OBJS = \
 	syscall.o\
 	sysfile.o\
 	sysproc.o\
+	ticketlock.o\
 	trapasm.o\
 	trap.o\
 	uart.o\
