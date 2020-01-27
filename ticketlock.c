@@ -7,14 +7,16 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "spinlock.h"
 #include "ticketlock.h"
 
 
 void
-initlock(struct spinlock *lk, char *name)
+initlockTicket(struct ticketlock *lk, char *name)
 {
   lk->name = name;
-  lk->locked = 0;
+  lk->proc = 0; 
+  lk->ticket = 0;
   lk->cpu = 0;
 }
 
@@ -23,35 +25,40 @@ initlock(struct spinlock *lk, char *name)
 // Holding a lock for a long time may cause
 // other CPUs to waste time spinning to acquire it.
 void
-acquire(struct spinlock *lk)
-{
+acquireTicket(struct ticketlock *lk)
+{ 
+    uint currentTicket;
   pushcli(); // disable interrupts to avoid deadlock.
-  if(holding(lk))
+  if(holdingTicket(lk))
     panic("acquire");
 
+    currentTicket = fetch_and_add(&lk->ticket , 1);
+
   // The xchg is atomic.
-  while(xchg(&lk->locked, 1) != 0)
-    ;
+  while(lk->turn != currentTicket);
 
   // Tell the C compiler and the processor to not move loads or stores
-  // past this point, to ensure that the critical section's memory
+  // past this point, to ensure that the critical section's memorysys
   // references happen after the lock is acquired.
   __sync_synchronize();
 
   // Record info about lock acquisition for debugging.
   lk->cpu = mycpu();
+  lk->proc = myproc();
   getcallerpcs(&lk, lk->pcs);
 }
 
 // Release the lock.
 void
-release(struct spinlock *lk)
+releaseTicket(struct ticketlock *lk)
 {
-  if(!holding(lk))
+  if(!holdingTicket(lk))
     panic("release");
 
   lk->pcs[0] = 0;
+  lk->proc = 0;
   lk->cpu = 0;
+  lk->turn++;
 
   // Tell the C compiler and the processor to not move loads or stores
   // past this point, to ensure that all the stores in the critical
@@ -63,9 +70,9 @@ release(struct spinlock *lk)
   // Release the lock, equivalent to lk->locked = 0.
   // This code can't use a C assignment, since it might
   // not be atomic. A real OS would use C atomics here.
-  asm volatile("movl $0, %0" : "+m" (lk->locked) : );
+//   asm volatile("movl $0, %0" : "+m" (lk->locked) : );
 
-  popcli();
+//   popcli();
 }
 
 // Record the current call stack in pcs[] by following the %ebp chain.
@@ -88,13 +95,24 @@ getcallerpcs(void *v, uint pcs[])
 
 // Check whether this cpu is holding the lock.
 int
-holding(struct spinlock *lock)
+holdingTicket(struct ticketlock *lock)
 {
-  int r;
-  pushcli();
-  r = lock->locked && lock->cpu == mycpu();
-  popcli();
-  return r;
+//   int r;
+//   pushcli();
+//   r = lock->locked && lock->cpu == mycpu();
+//   popcli();
+//   return r;
+int check;
+if(lock->ticket != lock->turn && (lock->proc == myproc()))
+{
+    check = 1;
+}
+else
+{
+    check = 0;
+}
+
+return check;
 }
 
 
