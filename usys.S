@@ -31,3 +31,6 @@ SYSCALL(sleep)
 SYSCALL(uptime)
 SYSCALL(ticketlockInit)
 SYSCALL(ticketlockTest)
+SYSCALL(rwinit)
+SYSCALL(rwtest)
+

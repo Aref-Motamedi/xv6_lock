@@ -555,3 +555,16 @@ ticketlockTest(void)
   cc = (&ptable.ticketlock)->ticket;
   return cc;
 }
+
+void
+rwinit(void)
+{
+
+}
+
+int
+rwtest(int rw)
+{
+  
+  return 1;
+}

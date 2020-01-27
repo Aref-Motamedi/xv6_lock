@@ -123,6 +123,10 @@ void            wakeup(void*);
 void            yield(void);
 void            ticketlockInit(void);
 int             ticketlockTest(void);
+void            rwinit(void);
+int             rwtest(int);
+
+
 
 
 // swtch.S
