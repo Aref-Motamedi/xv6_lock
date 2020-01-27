@@ -27,13 +27,14 @@ initlockTicket(struct ticketlock *lk, char *name)
 void
 acquireTicket(struct ticketlock *lk)
 { 
-  uint currentTicket;
-  // pushcli(); // disable interrupts to avoid deadlock.
-  
-  if(holdingTicket(lk))
-    panic("acquire");
+    uint currentTicket;
+    pushcli(); // disable interrupts to avoid deadlock.
 
-  currentTicket = fetch_and_add(&lk->ticket , 1);
+    if(holdingTicket(lk))
+        panic("acquire");
+
+    currentTicket = fetch_and_add(&lk->ticket , 1);
+    cprintf("current ticket: %d\n",currentTicket);
 
   // The xchg is atomic.
   while(lk->turn != currentTicket);
@@ -47,6 +48,7 @@ acquireTicket(struct ticketlock *lk)
   lk->cpu = mycpu();
   lk->proc = myproc();
   getcallerpcs(&lk, lk->pcs);
+
 }
 
 // Release the lock.
@@ -73,7 +75,7 @@ releaseTicket(struct ticketlock *lk)
   // not be atomic. A real OS would use C atomics here.
 //   asm volatile("movl $0, %0" : "+m" (lk->locked) : );
 
-//   popcli();
+  popcli();
 }
 
 // Check whether this cpu is holding the lock.
