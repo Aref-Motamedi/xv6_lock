@@ -532,3 +532,15 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+void
+ticketlockInit(void)
+{
+
+}
+
+void
+ticketlockTest(void)
+{
+  
+}

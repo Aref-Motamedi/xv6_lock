@@ -121,6 +121,8 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 void            ticketlockInit(void);
+void            ticketlockTest(void);
+
 
 // swtch.S
 void            swtch(struct context**, struct context*);
@@ -133,6 +135,12 @@ void            initlock(struct spinlock*, char*);
 void            release(struct spinlock*);
 void            pushcli(void);
 void            popcli(void);
+
+// ticketlock.c
+void            initlockTicket(struct ticketlock*, char*);
+void            acquireTicket(struct ticketlock*);
+void            releaseTicket(struct ticketlock*);
+
 
 // sleeplock.c
 void            acquiresleep(struct sleeplock*);
