@@ -1,6 +1,6 @@
 // Mutual exclusion lock.
 struct ticketlock {
-  uint ticket;       // Is the lock held?
+  uint ticket;
   uint turn;
 
   struct proc *proc;
