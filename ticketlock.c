@@ -62,8 +62,8 @@ releaseTicket(struct ticketlock *lk)
   lk->pcs[0] = 0;
   lk->proc = 0;
   lk->cpu = 0;
-  // lk->turn++;
-  fetch_and_add(&lk->turn , 1);
+  lk->turn++;
+  // fetch_and_add(&lk->turn , 1);
   // Tell the C compiler and the processor to not move loads or stores
   // past this point, to ensure that all the stores in the critical
   // section are visible to other cores before the lock is released.

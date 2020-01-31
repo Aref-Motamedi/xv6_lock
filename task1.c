@@ -30,14 +30,14 @@ int main ()
     else if(proid == 0)
     {
         printf(1, "child adding to shared counter\n");
-        // ticketlockTest();
-        rwtest(1);
-        rwtest(1);
+        ticketlockTest();
+        // rwtest(1);
+        // rwtest(1);
     }
     else
     {
         if  (proid == parent){
-            sleep(1000);
+            sleep(4000);
         }
         for(int i = 0 ; i < NCHILD; i++)
             wait();
